@@ -88,11 +88,11 @@ class Status:
         return self.求和类型属性('法术强度')
 
     @property
-    def 穿甲(self) -> float:
+    def 穿甲(self) -> int:
         return self.求和类型属性('穿甲')
 
     @property
-    def 固定物理穿透(self) -> float:
+    def 固定护甲穿透(self) -> float:
         return self.穿甲*(0.6+0.4*self.等级/18)
 
     @property
@@ -100,8 +100,8 @@ class Status:
         return self.求和类型属性('固定法术穿透')
 
     @property
-    def 百分比物理穿透(self) -> float:
-        return self.百分比类型属性('百分比物理穿透')
+    def 百分比护甲穿透(self) -> float:
+        return self.百分比类型属性('百分比护甲穿透')
 
     @property
     def 百分比法术穿透(self) -> float:
@@ -121,7 +121,7 @@ class Status:
         return 伤害数字
 
     def 计算敌人伤害(self, 原始伤害数字: DamageNumber) -> DamageNumber:
-        敌人残余护甲 = max(0, self.敌人['护甲'] * (1 - self.百分比物理穿透) - self.固定物理穿透)
+        敌人残余护甲 = max(0, self.敌人['护甲'] * (1 - self.百分比护甲穿透) - self.固定护甲穿透)
         敌人残余魔抗 = max(0, self.敌人['魔抗'] * (1 - self.百分比法术穿透) - self.固定法术穿透)
         return DamageNumber(
             物理=原始伤害数字['物理'] * 100 / (100 + 敌人残余护甲),
@@ -166,19 +166,19 @@ class Status:
 装备: {[装备['名称'] for 装备 in self.装备列表]}
 
 攻击速度: {self.攻击速度:.2f}
-基础攻击力: {self.基础攻击力:.0f}
-额外攻击力: {self.额外攻击力:.0f}
-法术强度: {self.法术强度:.0f}
+基础攻击力: {self.基础攻击力:.1f}
+额外攻击力: {self.额外攻击力:.1f}
+法术强度: {self.法术强度:.1f}
 
 暴击率: {self.暴击率:.0%}
 暴击伤害: {self.暴击伤害:.0%}
-技能急速: {self.技能急速:.0f}
+技能急速: {self.技能急速:.1f}
 
-穿甲: {self.穿甲:.0f}
-固定物理穿透: {self.固定物理穿透:.0f}
-固定法术穿透: {self.固定法术穿透:.0f}
-百分比物理穿透: {self.百分比物理穿透:.0%}
-百分比法术穿透: {self.百分比法术穿透:.0%}
+穿甲: {self.穿甲:d}
+固定护甲穿透: {self.固定护甲穿透:.1f}
+固定法术穿透: {self.固定法术穿透:.1f}
+百分比护甲穿透: {self.百分比护甲穿透:.1%}
+百分比法术穿透: {self.百分比法术穿透:.1%}
 
 敌人:
     最大生命值: {self.敌人['最大生命值']:.0f}

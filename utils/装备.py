@@ -22,7 +22,7 @@ class MythicPassive(TypedDict, total=False):
     法术强度: int
     穿甲: int
     固定法术穿透: int
-    百分比物理穿透: float
+    百分比护甲穿透: float
     百分比法术穿透: float
 
     固定移动速度: int
@@ -44,7 +44,7 @@ class Item(TypedDict, total=False):
     法术强度: int
     穿甲: int
     固定法术穿透: int
-    百分比物理穿透: float
+    百分比护甲穿透: float
     百分比法术穿透: float
 
     固定移动速度: int
@@ -162,7 +162,7 @@ items = {
         '类型': ItemType.传说,
         '攻击力': 40,
         '暴击率': 0.2,
-        '百分比物理穿透': 0.3,
+        '百分比护甲穿透': 0.3,
     },
 
     '幕刃': {
