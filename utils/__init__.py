@@ -139,6 +139,10 @@ class Status:
                 result = self.基础攻击力 + self.额外攻击力
         return self.计算敌人伤害(DamageNumber(物理=result))
 
+    @property
+    def 普攻每秒伤害(self) -> float:
+        return self.普攻伤害().sum() * self.攻击速度
+
     def 额外伤害(self, 次数: int = 1, 装备次数: dict[str, int] = {}) -> DamageNumber:
         伤害数字 = DamageNumber()
         for 装备 in self.装备列表:
@@ -181,7 +185,9 @@ class Status:
     护甲: {self.敌人['护甲']:.0f}
     魔抗: {self.敌人['魔抗']:.0f}
 
-期望普攻伤害: {sum(vars(self.普攻伤害()).values()):.1f}
+期望普攻伤害: {self.普攻伤害().sum():.1f}
+普攻每秒伤害: {self.普攻每秒伤害:.1f}
+额外伤害总和: {self.额外伤害().sum():.1f}
 详细额外伤害: {self.format_damage_dict(self.详细额外伤害)}\
 """
 
@@ -190,4 +196,4 @@ class Status:
 
     @staticmethod
     def format_damage_dict(damage_dict: dict[str, DamageNumber]) -> dict[str, str]:
-        return {key: f'{sum(vars(value).values()):.1f}' for key, value in damage_dict.items()}
+        return {key: f'{value.sum():.1f}' for key, value in damage_dict.items()}

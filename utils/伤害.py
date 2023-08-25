@@ -51,6 +51,9 @@ class DamageNumber:
     def __rmul__(self, scalar: float) -> Self:
         return self.__mul__(scalar)
 
+    def sum(self) -> float:
+        return sum(vars(self).values())
+
     def __repr__(self) -> str:
         return {'物理': self.物理, '魔法': self.魔法, '真实': self.真实}.__repr__()
 
