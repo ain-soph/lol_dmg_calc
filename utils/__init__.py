@@ -159,6 +159,7 @@ class Status:
         return f"""\
 英雄: {self.英雄['名称']:s}
 等级: {self.等级:d}
+装备: {[装备['名称'] for 装备 in self.装备列表]}
 
 攻击速度: {self.攻击速度:.2f}
 基础攻击力: {self.基础攻击力:.0f}
