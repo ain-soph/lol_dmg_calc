@@ -146,3 +146,11 @@ class Status:
                 额外伤害 = self.计算伤害数字(装备['额外伤害'])
                 伤害数字 += 装备次数.get(装备['名称'], 次数) * 额外伤害
         return self.计算敌人伤害(伤害数字)
+
+    @property
+    def 详细额外伤害(self) -> dict[str, DamageNumber]:
+        结果: dict[str, DamageNumber] = {}
+        for 装备 in self.装备列表:
+            if '额外伤害' in 装备:
+                结果[装备['名称']] = self.计算敌人伤害(self.计算伤害数字(装备['额外伤害']))
+        return 结果
