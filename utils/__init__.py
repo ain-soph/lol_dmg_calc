@@ -77,7 +77,7 @@ class Status:
 
     @property
     def 暴击伤害(self) -> float:
-        return 0.75+self.求和类型属性('暴击伤害')
+        return 1.75+self.求和类型属性('暴击伤害')
 
     @property
     def 技能急速(self) -> float:
@@ -132,9 +132,9 @@ class Status:
     def 普攻伤害(self, 暴击: bool | None = None) -> DamageNumber:
         match 暴击:
             case None:
-                result = (self.基础攻击力 + self.额外攻击力) * (1 + self.暴击率 * self.暴击伤害)
+                result = (self.基础攻击力 + self.额外攻击力) * (1 + self.暴击率 * (self.暴击伤害-1))
             case True:
-                result = (self.基础攻击力 + self.额外攻击力) * (1 + self.暴击伤害)
+                result = (self.基础攻击力 + self.额外攻击力) * self.暴击伤害
             case False:
                 result = self.基础攻击力 + self.额外攻击力
         return self.计算敌人伤害(DamageNumber(物理=result))
@@ -154,3 +154,39 @@ class Status:
             if '额外伤害' in 装备:
                 结果[装备['名称']] = self.计算敌人伤害(self.计算伤害数字(装备['额外伤害']))
         return 结果
+
+    def __str__(self) -> str:
+        return f"""\
+英雄: {self.英雄['名称']:s}
+等级: {self.等级:d}
+
+攻击速度: {self.攻击速度:.2f}
+基础攻击力: {self.基础攻击力:.0f}
+额外攻击力: {self.额外攻击力:.0f}
+法术强度: {self.法术强度:.0f}
+
+暴击率: {self.暴击率:.0%}
+暴击伤害: {self.暴击伤害:.0%}
+技能急速: {self.技能急速:.0f}
+
+穿甲: {self.穿甲:.0f}
+固定物理穿透: {self.固定物理穿透:.0f}
+固定法术穿透: {self.固定法术穿透:.0f}
+百分比物理穿透: {self.百分比物理穿透:.0%}
+百分比法术穿透: {self.百分比法术穿透:.0%}
+
+敌人:
+    最大生命值: {self.敌人['最大生命值']:.0f}
+    护甲: {self.敌人['护甲']:.0f}
+    魔抗: {self.敌人['魔抗']:.0f}
+
+期望普攻伤害: {sum(vars(self.普攻伤害()).values()):.1f}
+详细额外伤害: {self.format_damage_dict(self.详细额外伤害)}\
+"""
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    @staticmethod
+    def format_damage_dict(damage_dict: dict[str, DamageNumber]) -> dict[str, str]:
+        return {key: f'{sum(vars(value).values()):.1f}' for key, value in damage_dict.items()}

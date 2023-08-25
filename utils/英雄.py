@@ -11,8 +11,10 @@ class Champion(TypedDict):
 
 champions: dict[str, Champion] = {
     '诡术妖姬': {
+        '名称': '诡术妖姬',
         '基础攻击力': 55,
         '攻击力成长': 3.5,
         '基础攻击速度': 0.625,
+        '攻击速度成长': 0.014,
     }
 }
