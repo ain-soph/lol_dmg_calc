@@ -17,6 +17,7 @@ class Damage(TypedDict, total=False):
     基础攻击力加成: float
     额外攻击力加成: float
     法术强度加成: float
+    敌人最大生命值加成: float
     伤害类型: Required[DamageType]
 
 

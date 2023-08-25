@@ -7,7 +7,7 @@ from typing import TypedDict
 
 
 class Enemy(TypedDict):
-    生命值: float
+    最大生命值: float
     护甲: float
     魔抗: float
 
@@ -114,6 +114,7 @@ class Status:
         结果 += 伤害.get('基础攻击力加成', 0) * self.基础攻击力
         结果 += 伤害.get('额外攻击力加成', 0) * self.额外攻击力
         结果 += 伤害.get('法术强度加成', 0) * self.法术强度
+        结果 += 伤害.get('敌人最大生命值加成', 0) * self.敌人['最大生命值']
 
         伤害数字 = DamageNumber()
         伤害数字[伤害['伤害类型']] = 结果
