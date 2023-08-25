@@ -13,11 +13,13 @@ class Enemy(TypedDict):
 
 
 class Status:
-    def __init__(self, 等级: int, 英雄: Champion, 装备列表: list[Item], 敌人: Enemy):
+    def __init__(self, 等级: int, 英雄: Champion, 装备列表: list[Item], 敌人列表: list[Enemy]):
         self.等级 = 等级
         self.英雄 = 英雄
         self.装备列表 = 装备列表.copy()
-        self.敌人 = 敌人
+        self.敌人列表 = 敌人列表
+
+        self.默认敌人 = self.敌人列表[0]
 
         for i, 装备 in enumerate(self.装备列表):
             if 装备.get('类型', None) == ItemType.神话:
@@ -107,29 +109,31 @@ class Status:
     def 百分比法术穿透(self) -> float:
         return self.百分比类型属性('百分比法术穿透')
 
-    def 计算伤害数字(self, 伤害: Damage) -> DamageNumber:
+    def 计算伤害数字(self, 伤害: Damage, 敌人: Enemy | None = None) -> DamageNumber:
+        敌人 = 敌人 or self.默认敌人
         结果 = 0.0
         结果 += 伤害.get('基础伤害', 0)
         结果 += 伤害.get('等级伤害', lambda level: 0)(self.等级)
         结果 += 伤害.get('基础攻击力加成', 0) * self.基础攻击力
         结果 += 伤害.get('额外攻击力加成', 0) * self.额外攻击力
         结果 += 伤害.get('法术强度加成', 0) * self.法术强度
-        结果 += 伤害.get('敌人最大生命值加成', 0) * self.敌人['最大生命值']
+        结果 += 伤害.get('敌人最大生命值加成', 0) * 敌人['最大生命值']
 
         伤害数字 = DamageNumber()
         伤害数字[伤害['伤害类型']] = 结果
         return 伤害数字
 
-    def 计算敌人伤害(self, 原始伤害数字: DamageNumber) -> DamageNumber:
-        敌人残余护甲 = max(0, self.敌人['护甲'] * (1 - self.百分比护甲穿透) - self.固定护甲穿透)
-        敌人残余魔抗 = max(0, self.敌人['魔抗'] * (1 - self.百分比法术穿透) - self.固定法术穿透)
+    def 计算敌人伤害(self, 原始伤害数字: DamageNumber, 敌人: Enemy = None) -> DamageNumber:
+        敌人 = 敌人 or self.默认敌人
+        敌人残余护甲 = max(0, 敌人['护甲'] * (1 - self.百分比护甲穿透) - self.固定护甲穿透)
+        敌人残余魔抗 = max(0, 敌人['魔抗'] * (1 - self.百分比法术穿透) - self.固定法术穿透)
         return DamageNumber(
             物理=原始伤害数字['物理'] * 100 / (100 + 敌人残余护甲),
             魔法=原始伤害数字['魔法'] * 100 / (100 + 敌人残余魔抗),
             真实=原始伤害数字['真实'],
         )
 
-    def 普攻伤害(self, 暴击: bool | None = None) -> DamageNumber:
+    def 普攻伤害(self, 暴击: bool | None = None, 敌人: Enemy = None) -> DamageNumber:
         match 暴击:
             case None:
                 result = (self.基础攻击力 + self.额外攻击力) * (1 + self.暴击率 * (self.暴击伤害-1))
@@ -137,29 +141,41 @@ class Status:
                 result = (self.基础攻击力 + self.额外攻击力) * self.暴击伤害
             case False:
                 result = self.基础攻击力 + self.额外攻击力
-        return self.计算敌人伤害(DamageNumber(物理=result))
+        return self.计算敌人伤害(DamageNumber(物理=result), 敌人=敌人)
 
-    @property
-    def 普攻每秒伤害(self) -> float:
-        return self.普攻伤害().sum() * self.攻击速度
+    def 普攻每秒伤害(self, 敌人: Enemy = None) -> float:
+        return self.普攻伤害(敌人=敌人).sum() * self.攻击速度
 
-    def 额外伤害(self, 次数: int = 1, 装备次数: dict[str, int] = {}) -> DamageNumber:
+    def 额外伤害(self, 次数: int = 1, 装备次数: dict[str, int] = {}, 敌人: Enemy = None) -> DamageNumber:
         伤害数字 = DamageNumber()
         for 装备 in self.装备列表:
             if '额外伤害' in 装备:
                 额外伤害 = self.计算伤害数字(装备['额外伤害'])
                 伤害数字 += 装备次数.get(装备['名称'], 次数) * 额外伤害
-        return self.计算敌人伤害(伤害数字)
+        return self.计算敌人伤害(伤害数字, 敌人=敌人)
 
-    @property
-    def 详细额外伤害(self) -> dict[str, DamageNumber]:
+    def 详细额外伤害(self, 敌人: Enemy = None) -> dict[str, DamageNumber]:
         结果: dict[str, DamageNumber] = {}
         for 装备 in self.装备列表:
             if '额外伤害' in 装备:
-                结果[装备['名称']] = self.计算敌人伤害(self.计算伤害数字(装备['额外伤害']))
+                结果[装备['名称']] = self.计算敌人伤害(self.计算伤害数字(装备['额外伤害']), 敌人=敌人)
         return 结果
 
     def __str__(self) -> str:
+        result = ''
+        for i, 敌人 in enumerate(self.敌人列表):
+            result += f"""
+敌人{i+1}
+    最大生命值: {敌人['最大生命值']:.0f}
+    护甲: {敌人['护甲']:.0f}
+    魔抗: {敌人['魔抗']:.0f}
+
+    期望普攻伤害: {self.普攻伤害(敌人=敌人).sum():.1f}
+    普攻每秒伤害: {self.普攻每秒伤害(敌人=敌人):.1f}
+    额外伤害总和: {self.额外伤害(敌人=敌人).sum():.1f}
+    详细额外伤害: {self.format_damage_dict(self.详细额外伤害(敌人=敌人))}
+"""
+
         return f"""\
 英雄: {self.英雄['名称']:s}
 等级: {self.等级:d}
@@ -179,16 +195,7 @@ class Status:
 固定法术穿透: {self.固定法术穿透:.1f}
 百分比护甲穿透: {self.百分比护甲穿透:.1%}
 百分比法术穿透: {self.百分比法术穿透:.1%}
-
-敌人:
-    最大生命值: {self.敌人['最大生命值']:.0f}
-    护甲: {self.敌人['护甲']:.0f}
-    魔抗: {self.敌人['魔抗']:.0f}
-
-期望普攻伤害: {self.普攻伤害().sum():.1f}
-普攻每秒伤害: {self.普攻每秒伤害:.1f}
-额外伤害总和: {self.额外伤害().sum():.1f}
-详细额外伤害: {self.format_damage_dict(self.详细额外伤害)}\
+{result}
 """
 
     def __repr__(self) -> str:
