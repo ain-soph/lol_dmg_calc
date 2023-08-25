@@ -25,6 +25,3 @@ if __name__ == '__main__':
 
     print(f'{普攻伤害=}')
     print(f'{额外伤害=}')
-
-    print(f'{status.计算敌人伤害(普攻伤害)=}')
-    print(f'{status.计算敌人伤害(额外伤害)=}')
