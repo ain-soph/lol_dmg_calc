@@ -50,6 +50,10 @@ class Status:
         return 1 - result
 
     @property
+    def 装备价格(self) -> int:
+        return sum([装备.get('价格', 0) for 装备 in self.装备列表])
+
+    @property
     def 攻击速度(self) -> float:
         return min(2.5, self.英雄['基础攻击速度'] * (
             1 + self.statistic(
@@ -180,6 +184,7 @@ class Status:
 英雄: {self.英雄['名称']:s}
 等级: {self.等级:d}
 装备: {[装备['名称'] for 装备 in self.装备列表]}
+装备价格: {self.装备价格:d}
 
 攻击速度: {self.攻击速度:.2f}
 基础攻击力: {self.基础攻击力:.1f}

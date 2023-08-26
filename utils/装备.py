@@ -1,7 +1,7 @@
 
 from .伤害 import Damage, DamageType
 from enum import auto, StrEnum
-from typing import TypedDict, Required
+from typing import TypedDict
 
 
 class ItemType(StrEnum):
@@ -18,6 +18,7 @@ class MythicPassive(TypedDict, total=False):
     技能急速: int
     额外伤害: Damage
     攻击速度: float
+    生命偷取: float
 
     法术强度: int
     穿甲: int
@@ -31,7 +32,7 @@ class MythicPassive(TypedDict, total=False):
 
 class Item(TypedDict, total=False):
     名称: str
-    价格: Required[int]
+    价格: int
     类型: ItemType
 
     攻击力: int
@@ -40,6 +41,7 @@ class Item(TypedDict, total=False):
     技能急速: int
     额外伤害: Damage
     攻击速度: float
+    生命偷取: float
 
     法术强度: int
     穿甲: int
@@ -91,6 +93,14 @@ items = {
             '额外攻击力加成': 0.2,
             '伤害类型': DamageType.物理,
         },
+    },
+    '饮血剑': {
+        '名称': '饮血剑',
+        '价格': 3400,
+        '类型': ItemType.传说,
+        '攻击力': 95,
+        '暴击率': 0.2,
+        '生命偷取': 0.18,
     },
 
     '火炮': {
@@ -163,6 +173,14 @@ items = {
         '攻击力': 40,
         '暴击率': 0.2,
         '百分比护甲穿透': 0.3,
+    },
+    '冰刀': {
+        '名称': '冰刀',
+        '价格': 3000,
+        '类型': ItemType.传说,
+        '攻击力': 45,
+        '百分比护甲穿透': 0.3,
+        '技能急速': 20,
     },
 
     '幕刃': {
